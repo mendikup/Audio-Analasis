@@ -18,7 +18,6 @@ class Manager:
         logger.info("=========PIPLINE STARTING==========")
         self._load_files_metadata()
         self._send_to_kafka()
-        self._get_topic_masseges()
 
 
     def _load_files_metadata(self):
