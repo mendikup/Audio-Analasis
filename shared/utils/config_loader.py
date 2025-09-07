@@ -18,6 +18,8 @@ def load_config():
     mongo_collection = os.getenv("MONGO_COLLECTION")
 
 
+
+
     if all([
         mongo_uri, mongo_db, mongo_collection,
         ]):
