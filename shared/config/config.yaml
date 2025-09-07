@@ -1,0 +1,11 @@
+mongo:
+  uri: "mongodb://localhost:27017"
+  db: "mydb"
+  collection: "tweets_antisemitic"
+
+
+kafka:
+  bootstrap_servers: "kafka:9092"
+  topics:
+    raw_metadata: "raw-metadata"
+
