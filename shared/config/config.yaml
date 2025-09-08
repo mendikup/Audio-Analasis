@@ -1,7 +1,7 @@
 mongo:
   uri: "mongodb://localhost:27017"
   db: "mydb"
-  collection: "tweets_antisemitic"
+  collection: "podcasts"
 
 
 kafka:
