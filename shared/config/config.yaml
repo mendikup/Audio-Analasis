@@ -5,7 +5,9 @@ mongo:
 
 
 kafka:
-  bootstrap_servers: "kafka:9092"
+  bootstrap_servers: "localhost:9092"
   topics:
     raw_metadata: "raw-metadata"
 
+files:
+  path: "C:\\podcasts"
