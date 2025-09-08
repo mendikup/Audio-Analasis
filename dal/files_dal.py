@@ -1,46 +1,33 @@
-from pathlib import Path
-import json
 import time
+from pathlib import Path
+from typing import List, Dict
+from datetime import datetime
 from shared.utils.logger import logger
+from shared.utils.config_loader import load_config
+import os
 
 class Files_Loader:
-
     def __init__(self):
-     self.PATH = Path("C:/podcasts")
-     self.data = None
+        config = load_config()
+        # sets base path from env or config
+        path = os.getenv("FILES_PATH") or config.get("files").get("path")
+        self.path = Path(path)
+
+    def get_files_meta_data(self) -> List[Dict]:
+        # Scan directory
+        if not self.path.exists():
+            logger.error(f"Path not found: {self.path}")
 
 
-    def get_files_meta_data(self):
-
-        data = []
-
-        for file in self.PATH.iterdir():
+        records: List[Dict] = []
+        for file in self.path.iterdir():
             if file.is_file():
                 stats = file.stat()
-                file_info = {
+                records.append({
                     "name": file.name,
                     "absolute_path": str(file.resolve()),
-                    # "size_bytes": stats.st_size,
                     "created": time.ctime(stats.st_ctime),
                     "modified": time.ctime(stats.st_mtime),
-                }
-                data.append(file_info)
-
-                logger.info(f"File metadata for the file{file.name} loaded successfully..")
-            self.data = data
-
-
-
-    def write_to_json_file(self):
-        with open("data/files_metadata.json", "w", encoding="utf-8") as f:
-            json.dump(self.data, f, ensure_ascii=False, indent=4)
-
-            logger.info("All files metadata has been successfully saved to the Jason file.")
-
-
-    # with open("files_metadata.json", "r", encoding="utf-8") as f:
-    #     data= json.load(f)
-    #     for file in data:
-    #         print(file["absolute_path"])
-
-# print(json.dumps(data,indent=4))
+                })
+                logger.info(f"Loaded metadata for {file.name}")
+        return records

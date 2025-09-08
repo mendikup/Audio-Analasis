@@ -9,3 +9,5 @@ kafka:
   topics:
     raw_metadata: "raw-metadata"
 
+files:
+  path: "C:\\podcasts"
