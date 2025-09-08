@@ -2,6 +2,7 @@ mongo:
   uri: "mongodb://localhost:27017"
   db: "mydb"
   collection: "podcasts"
+  gridfs_bucket: "fs_audio"
 
 
 kafka:

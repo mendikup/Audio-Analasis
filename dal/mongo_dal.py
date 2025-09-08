@@ -7,8 +7,8 @@ class Mongo_Dal:
     A class that manages all queries with the DB
     """
 
-    def __init__(self):
-        self.coll = Mongo_Connector.get_mongo_collection()
+    def __init__(self,coll):
+        self.coll = coll
 
     def insert_doc(self,doc: dict):
         col = self.coll
