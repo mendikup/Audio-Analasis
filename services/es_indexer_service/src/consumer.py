@@ -20,15 +20,13 @@ class ESIndexer:
             try:
                 for msg in self.consumer:
                     doc = msg.value
-                    # Use absolute_path as the document ID (simple and readable)
+                    # Use absolute_path as the document ID
                     doc_id = doc.get("absolute_path")
                     if not doc_id:
                         logger.warning("Skipping message without absolute_path")
                         continue
                     try:
-                        self.dal.index_doc(index_name=self.index_name, id=doc_id, doc=doc)
-                        time.sleep(5)
-                        self.dal.get_all_data(self.index_name)
+                        self.dal.index_doc(index_name=self.index_name, doc_id=doc_id, doc=doc)
                     except Exception as e:
                         logger.error(f"Failed to index document to ES: {e}")
 
@@ -36,11 +34,13 @@ class ESIndexer:
                 logger.error(f"Consumer loop error: {e} Restarting consumer in 1s...")
                 try:
                     self.consumer.close()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"Failed to close connection: {e} ")
+
                 time.sleep(1)
                 self.consumer = Kafka_Connector.get_consumer(self.topic)
                 continue
+
 
 
 
