@@ -12,9 +12,16 @@ class ESIndexer:
         self.metadata_topic = config["kafka"]["topics"]["raw_metadata"]
         self.transcription_topic = config["kafka"]["topics"]["transcription_ready"]
 
-        # Create two consumers
-        self.metadata_consumer = Kafka_Connector.get_consumer(self.metadata_topic)
-        self.transcription_consumer = Kafka_Connector.get_consumer(self.transcription_topic)
+        # Create two consumers, one to consume the Metadata messages
+        # and the other for The transcribed messages from the Transcription service
+        self.metadata_consumer = Kafka_Connector.get_consumer(
+            self.metadata_topic,
+            group_id="es-indexer-metadata-group"
+        )
+        self.transcription_consumer = Kafka_Connector.get_consumer(
+            self.transcription_topic,
+            group_id="es-indexer-transcription-group"
+        )
 
         self.dal = Elastic_DAL()
         self.index_name = "files_metadata"
@@ -44,7 +51,7 @@ class ESIndexer:
                 continue
 
             try:
-                self.dal.index_doc(index_name=self.index_name, doc_id=doc_id, doc=doc)
+                self.dal.index_or_update_doc(index_name=self.index_name, doc_id=doc_id, doc=doc)
                 logger.info(f"Indexed metadata for: {doc_id}")
             except Exception as e:
                 logger.error(f"Failed to index metadata document to ES: {e}")
