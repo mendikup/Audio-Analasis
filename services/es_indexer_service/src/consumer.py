@@ -73,7 +73,7 @@ class ESIndexer:
             try:
                 # Update existing document with transcription content
                 update_doc = {"content": content}
-                self.dal.update_doc(index_name=self.index_name, doc_id=doc_id, doc=update_doc)
+                self.dal.index_or_update_doc(index_name=self.index_name, doc_id=doc_id, doc=update_doc)
                 logger.info(f"Updated document with transcription: {doc_id}")
             except Exception as e:
                 logger.error(f"Failed to update document with transcription: {e}")
