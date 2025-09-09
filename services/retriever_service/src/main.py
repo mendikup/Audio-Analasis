@@ -1,4 +1,3 @@
-"""main entrypoint (delegates to manager)"""
 
 from services.retriever_service.src.manager import Manager
 
