@@ -1,11 +1,16 @@
 import os
 from faster_whisper import WhisperModel
 from shared.utils.logger import logger
+from elasticsearch import Elasticsearch, NotFoundError
+from dal .elastic_dal import Elastic_DAL
 
 
-class Transcription_DAL:
+
+
+class Transcriber:
     def __init__(self):
         """Initialize the Whisper model"""
+        self.es = Elastic_DAL().es
         try:
             logger.info("Initializing Whisper model...")
             self.whisper_model = WhisperModel(
@@ -17,6 +22,23 @@ class Transcription_DAL:
         except Exception as e:
             logger.error(f"Failed to initialize Whisper model: {e}")
             raise
+
+
+    def has_transcription(self, absolute_path: str, index_name: str) -> bool:
+        """
+        Check if the document already has a transcription
+        before we're starting to transcribe
+        """
+        try:
+            res = self.es.get(index=index_name, id=absolute_path)
+            src = res.get("_source", {})
+            return bool(src.get("content") != " ")
+        except NotFoundError:
+            return False
+        except Exception as e:
+            logger.error(f"Failed to check transcription for {absolute_path}: {e}")
+            # return false to retry transcription fot this audio-file
+            return False
 
     def transcribe_audio_file(self, file_path: str) -> str:
         """
@@ -46,6 +68,4 @@ class Transcription_DAL:
             logger.error(f"Error transcribing audio file {file_path}: {e}")
             return None
 
-if __name__ =="__main__":
-    t =Transcription_DAL()
-    print(t.transcribe_audio_file("C:\podcasts\download (2).wav"))
+

@@ -1,5 +1,5 @@
 import time
-from dal.transcription_dal import Transcription_DAL
+from services.transcription_service.src.transcriber import Transcriber
 from shared.connectors.kafka_connector import Kafka_Connector
 from shared.utils.config_loader import load_config
 from shared.utils.logger import logger
@@ -9,14 +9,16 @@ class TranscriptionService:
     def __init__(self):
         config = load_config()
         self.input_topic = config["kafka"]["topics"]["raw_metadata"]
-        self.output_topic = config["kafka"]["topics"]["transcription_ready"]
+        self.output_topic = config["kafka"]["topics"]["transcribed_content"]
 
         self.consumer = Kafka_Connector.get_consumer(
             self.input_topic,
             group_id="transcription-service-group"
         )
         self.producer = Kafka_Connector.get_producer()
-        self.dal = Transcription_DAL()
+        self.dal = Transcriber()
+        self.index_name = "files_metadata"
+
 
     def run(self):
         logger.info("TranscriptionService started and waiting for messages...")
@@ -34,6 +36,11 @@ class TranscriptionService:
                     if not self._is_audio_file(absolute_path):
                         logger.debug(f"Skipping non-audio file: {absolute_path}")
                         continue
+
+                    # Check if this document has a transcription
+                    # if self.dal.has_transcription(absolute_path,self.index_name):
+                    #     logger.info(f"Skipping already-transcribed file: {absolute_path}")
+                    #     continue
 
                     try:
                         # Transcribe the audio file
