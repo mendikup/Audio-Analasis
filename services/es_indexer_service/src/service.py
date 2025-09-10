@@ -10,7 +10,7 @@ class ESIndexer:
     def __init__(self):
         config = load_config()
         self.metadata_topic = config["kafka"]["topics"]["raw_metadata"]
-        self.transcription_topic = config["kafka"]["topics"]["transcription_ready"]
+        self.transcription_topic = config["kafka"]["topics"]["transcribed_content"]
 
         # Create two consumers, one to consume the Metadata messages
         # and the other for The transcribed messages from the Transcription service
@@ -87,7 +87,7 @@ class ESIndexer:
             pass
 
         config = load_config()
-        self.metadata_consumer = Kafka_Connector.get_consumer(config["kafka"]["topics"]["raw_metadata"])
-        self.transcription_consumer = Kafka_Connector.get_consumer(config["kafka"]["topics"]["transcription_ready"])
+        self.metadata_consumer = Kafka_Connector.get_consumer(config["kafka"]["topics"]["raw_metadata"],self.metadata_topic)
+        self.transcription_consumer = Kafka_Connector.get_consumer(config["kafka"]["topics"]["transcribed_content"],self.transcription_topic)
 
 
