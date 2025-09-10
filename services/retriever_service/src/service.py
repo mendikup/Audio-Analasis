@@ -1,4 +1,4 @@
-from dal.files_dal import Files_Loader
+from services.retriever_service.src.data_loader import Files_Loader
 from shared.connectors.kafka_connector import Kafka_Connector
 from shared.utils.config_loader import load_config
 from shared.utils.logger import logger

@@ -68,6 +68,4 @@ class Transcriber:
             logger.error(f"Error transcribing audio file {file_path}: {e}")
             return None
 
-if __name__ =="__main__":
-    t =Transcriber()
-    print(t.transcribe_audio_file("C:\podcasts\download (2).wav"))
+

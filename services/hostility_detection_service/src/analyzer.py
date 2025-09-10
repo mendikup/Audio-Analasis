@@ -6,6 +6,7 @@ from shared.utils.logger import logger
 class Analyzer:
 
     def _analyze_content(self, text: str, doc_id: str
+                         ,problem_pairs: List[tuple[str,str]]
                          ,danger_threshold: float
                          ,moderate_words: List[Any]
                          ,hostile_words: List[Any] ) -> Dict[str, Any]:
@@ -22,7 +23,7 @@ class Analyzer:
         moderate_score = len(moderate_found) * 1
 
         #  Check for problematic word pairs
-        pairs_found = self._find_problem_pairs(text_lower)
+        pairs_found = self._find_problem_pairs(problem_pairs,text_lower)
         pairs_score = len(pairs_found) * 1
 
         #  Calculate total words in text
@@ -64,7 +65,7 @@ class Analyzer:
 
         return found_words
 
-    def _find_problem_pairs(self,problem_pairs:List[tuple[str]], text: str) -> List[str]:
+    def _find_problem_pairs(self,problem_pairs:List[tuple[str,str]], text: str) -> List[str]:
         """Check if there are problematic word pairs in text"""
         found_pairs = []
         for word1, word2 in problem_pairs:

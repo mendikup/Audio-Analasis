@@ -48,8 +48,8 @@ class HostilityDetector:
             self.hostile_words = [word.strip().lower() for word in hostile_text.split(',') if word.strip()]
             self.moderate_words = [word.strip().lower() for word in moderate_text.split(',') if word.strip()]
 
-            # Problematic word pairs (what I found)
-            self.PROBLEM_PAIRS = [
+            # Problematic word pairs (what I found )
+            self.problem_pairs = [
                 ("free", "palestine"),
                 ("israeli", "occupation"),
                 ("war", "crimes"),
@@ -86,6 +86,7 @@ class HostilityDetector:
 
                     # Analyze content for hostility
                     analysis_result = self.analyzer._analyze_content(text_content, doc_id,
+                                                                     self.problem_pairs,
                                                                      self.DANGER_THRESHOLD,
                                                                      self.moderate_words
                                                                      ,self.hostile_words)
@@ -114,3 +115,14 @@ class HostilityDetector:
         except Exception as e:
             logger.error(f"Error sending to Kafka: {e}")
 
+    def _save_to_elasticsearch(self, result: Dict[str, Any]):
+        """Save result to Elasticsearch"""
+        try:
+            doc_id = result["document_id"]
+            self.dal.index_or_update_doc(
+                index_name=self.index_name,
+                doc_id=doc_id,
+                doc=result
+            )
+        except Exception as e:
+            logger.error(f"Error saving to Elasticsearch: {e}")
