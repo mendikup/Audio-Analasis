@@ -9,6 +9,7 @@ kafka:
   bootstrap_servers: "localhost:9092"
   topics:
     raw_metadata: "raw-metadata"
+    transcription_ready: "transcription-ready"
 
 files:
   path: "C:\\podcasts"

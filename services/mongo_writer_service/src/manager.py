@@ -14,7 +14,7 @@ class MongoWriter:
         self.topic = config["kafka"]["topics"]["raw_metadata"]
 
         # Kafka consumer without timeout
-        self.consumer = Kafka_Connector.get_consumer(self.topic)
+        self.consumer = Kafka_Connector.get_consumer(self.topic ,group_id="Mongowriter-metadata-group")
 
         # Build Mongo + GridFS connection (later will use the Mongo_Connector tu build)
         mongo_uri = config["mongo"]["uri"]
@@ -49,7 +49,7 @@ class MongoWriter:
                 except Exception:
                     pass
                 time.sleep(1)
-                self.consumer = Kafka_Connector.get_consumer(self.topic)
+                self.consumer = Kafka_Connector.get_consumer(self.topic,"Mongowriter-metadata-group")
                 continue
 
     def _store_file(self, file_id: str, abs_path: str, filename: str, replace: bool = True):
