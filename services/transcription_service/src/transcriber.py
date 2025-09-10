@@ -1,16 +1,17 @@
 import os
 from faster_whisper import WhisperModel
 from shared.utils.logger import logger
-from elasticsearch import Elasticsearch, NotFoundError
-from dal .elastic_dal import Elastic_DAL
-
-
+import os
+from faster_whisper import WhisperModel
+from shared.utils.logger import logger
+from elasticsearch import NotFoundError
+from dal.elastic_dal import Elastic_DAL
 
 
 class Transcriber:
     def __init__(self):
         """Initialize the Whisper model"""
-        self.es = Elastic_DAL().es
+        self.dal = Elastic_DAL()
         try:
             logger.info("Initializing Whisper model...")
             self.whisper_model = WhisperModel(
@@ -30,9 +31,8 @@ class Transcriber:
         before we're starting to transcribe
         """
         try:
-            res = self.es.get(index=index_name, id=absolute_path)
-            src = res.get("_source", {})
-            return bool(src.get("content") != " ")
+            doc = self.dal.get_by_id(index_name, absolute_path)
+            return bool(doc.get("content"))
         except NotFoundError:
             return False
         except Exception as e:

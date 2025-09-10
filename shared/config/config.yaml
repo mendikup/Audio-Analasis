@@ -12,6 +12,10 @@ elasticsearch:
 
 kafka:
   bootstrap_servers: "localhost:9092"
+  # Polling timeout for consumers (ms)
+  consumer_timeout_ms: 1000
+  # Number of records processed before committing offsets
+  consumer_batch_size: 50
   topics:
     raw_metadata: "raw-metadata"
     transcribed_content: "transcribed-content"

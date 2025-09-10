@@ -195,15 +195,21 @@ Retriever Service
 **Environment variables (examples):**
 
 *   KAFKA\_BOOTSTRAP\_SERVERS
-    
+
 *   MONGO\_URI
-    
+
 *   ELASTIC\_URL
-    
+
 *   AUDIO\_PATH
-    
+
 *   (others defined in config.yaml)
-    
+
+**Batching and offsets**
+
+Kafka consumers poll up to `kafka.consumer_batch_size` records and commit offsets
+manually after each batch. This prevents reprocessing and enables efficient bulk
+indexing.
+
 
 **Commands:**
 
