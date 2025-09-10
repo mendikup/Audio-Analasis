@@ -9,7 +9,7 @@ import os
 class Files_Loader:
     def __init__(self):
         config = load_config()
-        # sets base path from env or config
+        # sets base path from env or confi
         path = os.getenv("FILES_PATH") or config.get("files").get("path")
         self.path = Path(path)
 
