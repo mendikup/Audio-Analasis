@@ -6,4 +6,5 @@ COPY shared/ ./shared/
 COPY dal/ ./dal/
 COPY services/es_indexer_service/ ./services/es_indexer_service/
 ENV PYTHONPATH=/app
+
 CMD ["python", "-m", "services.es_indexer_service.src.main"]
