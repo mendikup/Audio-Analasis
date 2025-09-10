@@ -48,3 +48,6 @@ class Elastic_DAL:
 
         logger.info(f"Retrieved {len(docs)} documents")
         print(json.dumps(docs, indent=4))
+
+e = Elastic_DAL()
+e.get_all_data("files_metadata")
