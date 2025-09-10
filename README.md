@@ -46,9 +46,9 @@ kodecode\_final\_project
 
 │   │       ├── main.py
 
-│   │       ├── manager.py
+│   │       ├── service.py
 
-│   │       └── data
+│   │       └── data_loader
 
 │   │           └── files\_metadata.json
 
@@ -60,7 +60,7 @@ kodecode\_final\_project
 
 │   │       ├── main.py
 
-│   │       └── consumer.py
+│   │       └── service.py
 
 │   │
 
@@ -70,7 +70,7 @@ kodecode\_final\_project
 
 │   │       ├── main.py
 
-│   │       └── manager.py
+│   │       └── service.py
 
 │   │
 
@@ -80,9 +80,9 @@ kodecode\_final\_project
 
 │   │       ├── main.py
 
-│   │       └── transcription.py
+│   │       └── service.py
 
-│   │
+│   │       └── transcriber.py
 
 │   └── hostility\_detection\_service
 
@@ -90,9 +90,9 @@ kodecode\_final\_project
 
 │           ├── main.py
 
-│           └── detector.py
+│           └── service.py
 
-│
+│          └── analyzer.py
 
 └── shared
 
@@ -118,7 +118,8 @@ kodecode\_final\_project
 
         └── logger.py
 
-### 🔸 Server (Training Backend)
+**3\. Services Table**
+----------------------
 
 | **Service**                 | **Function* | **Technologies**                     |
 |-----------------------------|-------| --------------------------- |
@@ -126,48 +127,13 @@ kodecode\_final\_project
 | `ES index service`          | Index metadata in Elasticsearch   | Python, Kafka, Elasticsearch        |
 | `Mongo Writer service`      | Store audio binaries in MongoDB GridFS  | Python, Kafka, MongoDB GridFS     |
 | `Transcription service`     | Convert audio to text (currently synchronous)   | Python, Speech-to-Text, Kafka |
-| `Hostility Detection Service` | Analyze transcribed text and flag hostile content   | Clean and train model       |
-| `/get_latest_model`         | Python, Kafka, Elasticsearch   | Python, Kafka, Elasticsearch
+| `Hostility Detection Service` | Analyze transcribed text and flag hostile content   | Python, Kafka, Elasticsearch      |
+
  |
 
-**3\. Services Table**
-----------------------
 
-**Service**
 
-**Function**
 
-**Technologies**
-
-Retriever Service
-
-Scan audio files and publish metadata to Kafka
-
-Python, Kafka
-
-ES Indexer Service
-
-Index metadata in Elasticsearch
-
-Python, Kafka, Elasticsearch
-
-Mongo Writer Service
-
-Store audio binaries in MongoDB GridFS
-
-Python, Kafka, MongoDB GridFS
-
-Transcription Service
-
-Convert audio to text (currently synchronous)
-
-Python, Speech-to-Text, Kafka
-
-Hostility Detection Service
-
-Analyze transcribed text and flag hostile content
-
-Python, Kafka, Elasticsearch
 
 **4\. Pipeline Flow**
 ---------------------
@@ -209,7 +175,7 @@ Retriever Service
 
 *   Asynchronous pipeline → prevents transcription (a long task) from blocking flow
     
-*   Mongo Writer & ES Indexer run in parallel → reduces latency
+*   Mongo Writer and ES Indexer run in parallel → reduces latency
     
 *   Microservice principle → each service has a single responsibility
     

@@ -1,0 +1,179 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  kafka:
+    image: bitnami/kafka:3.7
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # Kafka configuration
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    networks:
+      - app-network
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - app-network
+
+  # Application Services
+  retriever-service:
+    build:
+      context: .
+      dockerfile: services/retriever_service/Dockerfile
+
+    environment:
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+      - KAFKA_TOPIC_RAW_METADATA=raw-metadata
+
+      # Files Configuration
+      - FILES_PATH=/app/data/podcasts
+
+      # Mongo Configuration
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017
+      - MONGO_DB=mydb
+      - MONGO_COLLECTION=podcasts
+      - MONGO_GRIDFS_BUCKET=fs_audio
+
+      # Elasticsearch Configuration
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ES_FILES_METADATA_INDEX=files-metadata
+      - ES_HOSTILITY_RESULTS_INDEX=hostility-results
+    volumes:
+      - ./data/podcasts:/app/data/podcasts:ro
+    depends_on:
+      - kafka
+      - mongodb
+      - elasticsearch
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  es-indexer-service:
+    build:
+      context: .
+      dockerfile: services/es_indexer_service/Dockerfile
+    environment:
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+      - KAFKA_TOPIC_RAW_METADATA=raw-metadata
+
+      # Elasticsearch Configuration
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ES_FILES_METADATA_INDEX=files-metadata
+      - ES_HOSTILITY_RESULTS_INDEX=hostility-results
+
+      # MongoDB Configuration (if needed)
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017
+      - MONGO_DB=mydb
+      - MONGO_COLLECTION=podcasts
+      - MONGO_GRIDFS_BUCKET=fs_audio
+    depends_on:
+      - kafka
+      - elasticsearch
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  mongo-writer-service:
+    build:
+      context: .
+      dockerfile: services/mongo_writer_service/Dockerfile
+    environment:
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+      - KAFKA_TOPIC_RAW_METADATA=raw-metadata
+
+      # MongoDB Configuration
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017
+      - MONGO_DB=mydb
+      - MONGO_COLLECTION=podcasts
+      - MONGO_GRIDFS_BUCKET=fs_audio
+
+      # Files Configuration
+      - FILES_PATH=/app/data/podcasts
+
+      # Elasticsearch Configuration (if needed)
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ES_FILES_METADATA_INDEX=files-metadata
+      - ES_HOSTILITY_RESULTS_INDEX=hostility-results
+    volumes:
+      - ./data/podcasts:/app/data/podcasts:ro
+    depends_on:
+      - kafka
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  hostility-detection-service:
+    build:
+      context: .
+      dockerfile: services/hostility_detection_service/Dockerfile
+    environment:
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:19092
+      - KAFKA_TOPIC_TRANSCRIBED_CONTENT=transcribed-content
+      - KAFKA_TOPIC_HOSTILITY_RESULTS=hostility-results
+
+      # Elasticsearch Configuration
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ES_FILES_METADATA_INDEX=files-metadata
+      - ES_HOSTILITY_RESULTS_INDEX=hostility-results
+
+      # MongoDB Configuration (if needed)
+      - MONGO_URI=mongodb://admin:password123@mongodb:27017
+      - MONGO_DB=mydb
+      - MONGO_COLLECTION=podcasts
+      - MONGO_GRIDFS_BUCKET=fs_audio
+    depends_on:
+      - kafka
+      - elasticsearch
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:
+  elasticsearch_data:
+
+networks:
+  app-network:
+    driver: bridge
