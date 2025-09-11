@@ -44,6 +44,7 @@ class Analyzer:
             danger_percent, danger_threshold, len(hostile_found)
         )
 
+
         # Create final result
         result = {
             "document_id": doc_id,  # include document reference for later storage
@@ -83,6 +84,7 @@ class Analyzer:
         """Calculate threat level according to : none, medium, high"""
 
         # If danger percentage is below threshold, there is no threat
+
         if danger_percent < danger_threshold:
             return "none"
 
@@ -91,5 +93,6 @@ class Analyzer:
             return "high"
 
         # Medium threat when flagged but not high
+
         return "medium"
 
