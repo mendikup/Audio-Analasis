@@ -89,7 +89,7 @@ services:
   es-indexer-service:
     build:
       context: .
-      dockerfile: services/es_indexer_service/Dockerfile
+      dockerfile: services/es_indexer_service/src/Dockerfile # ensure correct Dockerfile path
     environment:
       # Kafka Configuration
       - KAFKA_BOOTSTRAP_SERVERS=kafka:19092

@@ -94,6 +94,8 @@ class HostilityDetector:
                     # Send results
                     self._send_to_kafka(analysis_result)
                     self._save_to_elasticsearch(analysis_result)
+                    # Commit offset so this message won't be read again
+                    self.consumer.commit()  # manual commit per message
 
             except Exception as e:
                 logger.error(f"Consumer loop error: {e} - restarting...")

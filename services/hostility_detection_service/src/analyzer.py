@@ -44,11 +44,11 @@ class Analyzer:
 
         # Create final result
         result = {
+            "document_id": doc_id,  # include document reference for later storage
             # Required fields from document
             "bds_percent": round(danger_percent, 2),
             "is_bds": is_dangerous,
             "bds_threat_level": threat_level,
-
         }
 
         logger.info(
