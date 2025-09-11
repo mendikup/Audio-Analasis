@@ -1,4 +1,3 @@
-import time
 from pathlib import Path
 from typing import List, Dict
 from datetime import datetime
@@ -26,8 +25,11 @@ class Files_Loader:
                 records.append({
                     "name": file.name,
                     "absolute_path": str(file.resolve()),
-                    "created": time.ctime(stats.st_ctime),
-                    "modified": time.ctime(stats.st_mtime),
+                    "created": datetime.fromtimestamp(stats.st_ctime).isoformat(),
+                    "modified": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                    
+                   
+
                     "content": ""
                 })
                 logger.info(f"Loaded metadata for {file.name}")
