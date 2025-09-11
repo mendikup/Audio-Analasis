@@ -37,10 +37,12 @@ class MongoWriter:
                             continue
                         file_id = abs_path
                         filename = doc.get("name")
+
                         # Store file without overwriting existing content
                         self.dal.store_file(file_id, abs_path, filename, replace=False)  # avoid duplicate uploads
                         # Commit after each file so the same message isn't reprocessed
                         self.consumer.commit()  # manual commit per message
+
             except Exception as e:
                 logger.error(f"Consumer loop error: {e} Restarting consumer in 1s...")
                 try:
