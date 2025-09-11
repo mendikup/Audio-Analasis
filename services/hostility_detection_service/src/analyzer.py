@@ -40,7 +40,10 @@ class Analyzer:
         is_dangerous = danger_percent >= danger_threshold
 
         #  Determine threat level (bds_threat_level field)
-        threat_level = self._calculate_threat_level(danger_percent, danger_threshold, len(hostile_found))
+        threat_level = self._calculate_threat_level(
+            danger_percent, danger_threshold, len(hostile_found)
+        )
+
 
         # Create final result
         result = {
@@ -75,8 +78,12 @@ class Analyzer:
 
         return found_pairs
 
-    def _calculate_threat_level(self, danger_percent: float, danger_threshold: float, hostile_count: int) -> str:
+    def _calculate_threat_level(
+        self, danger_percent: float, danger_threshold: float, hostile_count: int
+    ) -> str:
         """Calculate threat level according to : none, medium, high"""
+
+        # If danger percentage is below threshold, there is no threat
 
         if danger_percent < danger_threshold:
             return "none"
@@ -85,6 +92,7 @@ class Analyzer:
         if hostile_count >= 3 or danger_percent >= 25:
             return "high"
 
-        # Medium threat - message is dangerous but not high
+        # Medium threat when flagged but not high
+
         return "medium"
 
