@@ -1,7 +1,5 @@
 import os
-from faster_whisper import WhisperModel
-from shared.utils.logger import logger
-import os
+
 from faster_whisper import WhisperModel
 from shared.utils.logger import logger
 from elasticsearch import NotFoundError
