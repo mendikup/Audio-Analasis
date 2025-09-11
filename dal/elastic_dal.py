@@ -1,5 +1,6 @@
 from shared.connectors.elastic_connector import Elastic_Connector
 from shared.utils.logger import logger
+from elasticsearch import NotFoundError, helpers
 import json
 
 
@@ -34,10 +35,26 @@ class Elastic_DAL:
             logger.error(f"Failed to index/update doc {doc_id}: {e}")
             raise
 
-    def get_by_id(self,index_name,doc_id):
-        """Get document by its ID"""
-        res =self.es.get(index=index_name, id=doc_id)
-        return res["hits"]["hits"]["_source"]
+    def get_by_id(self, index_name: str, doc_id: str) -> dict:
+        """Retrieve a document by ID using the underlying Elastic connector."""
+        try:
+            res = self.es.get(index=index_name, id=doc_id)
+            return res.get("_source", {})
+        except NotFoundError:
+            return {}
+
+    def bulk_index(self, index_name: str, docs: list[dict]):
+        """Index a batch of documents using Elasticsearch bulk API."""
+        actions = [
+            {
+                "_op_type": "index",
+                "_index": index_name,
+                "_id": doc.get("absolute_path"),
+                "_source": doc,
+            }
+            for doc in docs
+        ]
+        helpers.bulk(self.es, actions)
 
     def get_all_data(self, index_name):
         """Retrieve all documents from the index."""

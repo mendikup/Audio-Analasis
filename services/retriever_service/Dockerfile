@@ -4,6 +4,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY shared/ ./shared/
 COPY dal/ ./dal/
-COPY services/mongo_writer_service/ ./services/mongo_writer_service/
+# Copy the retriever service instead of the mongo writer
+COPY services/retriever_service/ ./services/retriever_service/
 ENV PYTHONPATH=/app
-CMD ["python", "-m", "services.mongo_writer_service.src.main"]
+# Run the retriever service main module
+CMD ["python", "-m", "services.retriever_service.src.main"]
