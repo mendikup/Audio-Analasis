@@ -27,6 +27,9 @@ class Files_Loader:
                     "absolute_path": str(file.resolve()),
                     "created": datetime.fromtimestamp(stats.st_ctime).isoformat(),
                     "modified": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                    
+                   
+
                     "content": ""
                 })
                 logger.info(f"Loaded metadata for {file.name}")

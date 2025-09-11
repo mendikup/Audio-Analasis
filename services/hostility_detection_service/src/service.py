@@ -23,7 +23,7 @@ class HostilityDetector:
         self.index_name = cfg["elasticsearch"]["indexes"]["files_metadata"]
 
         # Set threshold for flagging messages
-        self.DANGER_THRESHOLD = 15.0
+        self.DANGER_THRESHOLD = cfg.get("hostility_detection", {}).get("danger_threshold", 15.0)
 
         self.analyzer = Analyzer()
 

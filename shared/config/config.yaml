@@ -22,3 +22,6 @@ kafka:
 
 files:
   path: "C:\\podcasts"
+
+hostility_detection:
+  danger_threshold: 15.0
