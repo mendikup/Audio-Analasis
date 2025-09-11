@@ -8,7 +8,6 @@ elasticsearch:
   url: "http://localhost:9200"
   indexes:
     files_metadata: "files-metadata"
-    hostility_results: "hostility-results"
 
 kafka:
   bootstrap_servers: "localhost:9092"

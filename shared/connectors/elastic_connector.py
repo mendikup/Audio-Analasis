@@ -20,7 +20,7 @@ class Elastic_Connector:
             logger.error(f"Elasticsearch connection error: {e}")
 
     def _ensure_indexes(self):
-        indexes = self.config["elasticsearch"]["indexes"]
+        index_name = self.config["elasticsearch"]["indexes"]["files_metadata"]
 
         files_mapping = {
             "mappings": {
@@ -30,15 +30,6 @@ class Elastic_Connector:
                     "created": {"type": "date"},
                     "modified": {"type": "date"},
                     "content": {"type": "text"},
-                    "transcribed_text": {"type": "text"}
-                }
-            }
-        }
-
-        hostility_mapping = {
-            "mappings": {
-                "properties": {
-                    "document_id": {"type": "keyword"},
                     "hostility_level": {"type": "keyword"},
                     "hostile_word_count": {"type": "integer"},
                     "moderate_word_count": {"type": "integer"},
@@ -51,8 +42,7 @@ class Elastic_Connector:
             }
         }
 
-        self._create_index_if_not_exists(indexes["files_metadata"], files_mapping)
-        self._create_index_if_not_exists(indexes["hostility_results"], hostility_mapping)
+        self._create_index_if_not_exists(index_name, files_mapping)
 
     def _create_index_if_not_exists(self, index_name: str, mapping: dict):
         if not self.es.indices.exists(index=index_name):

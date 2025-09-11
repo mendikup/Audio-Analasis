@@ -20,7 +20,7 @@ class HostilityDetector:
 
         self.producer = Kafka_Connector.get_producer()
         self.dal = Elastic_DAL()
-        self.index_name = cfg["elasticsearch"]["indexes"]["hostility_results"]
+        self.index_name = cfg["elasticsearch"]["indexes"]["files_metadata"]
 
         # Set threshold for flagging messages
         self.DANGER_THRESHOLD = 15.0

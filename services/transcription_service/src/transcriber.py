@@ -1,7 +1,5 @@
 import os
-from faster_whisper import WhisperModel
-from shared.utils.logger import logger
-import os
+
 from faster_whisper import WhisperModel
 from shared.utils.logger import logger
 from elasticsearch import NotFoundError
@@ -32,7 +30,7 @@ class Transcriber:
         """
         try:
             doc = self.dal.get_by_id(index_name, absolute_path)
-            return bool(doc.get("content"))
+            return bool(doc.get("content") and doc["content"].strip())
         except NotFoundError:
             return False
         except Exception as e:
