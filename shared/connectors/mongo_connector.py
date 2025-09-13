@@ -4,6 +4,7 @@ from gridfs import GridFS
 from shared.utils.config_loader import load_config
 from shared.utils.logger import logger
 
+
 class Mongo_Connector:
     @staticmethod
     def get_mongo_collection():

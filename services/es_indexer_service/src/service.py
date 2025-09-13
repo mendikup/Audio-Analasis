@@ -80,10 +80,11 @@ class ESIndexer:
                     logger.warning("Skipping transcription message without absolute_path or content")
                     continue
                 try:
-                    update_doc = {"content": content}
+                    # *** זה החלק החשוב - עדכון רק של שדה content ***
+                    update_doc = {"content": content.strip()}
                     self.dal.index_or_update_doc(self.index_name, doc_id, update_doc)
                     processed = True
-                    logger.info(f"Updated document with transcription: {doc_id}")
+                    logger.info(f"✅ UPDATED CONTENT for document: {doc_id} (length: {len(content.strip())} chars)")
                 except Exception as e:
                     logger.error(f"Failed to update document with transcription: {e}")
         if processed:

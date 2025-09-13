@@ -30,7 +30,7 @@ class Files_Loader:
                     
                    
 
-                    "content": ""
+
                 })
                 logger.info(f"Loaded metadata for {file.name}")
         return records

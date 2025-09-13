@@ -1,4 +1,6 @@
 import time
+from typing import Dict
+
 from services.transcription_service.src.transcriber import Transcriber
 from shared.connectors.kafka_connector import Kafka_Connector
 from shared.utils.config_loader import load_config
@@ -18,11 +20,11 @@ class TranscriptionService:
             self.input_topic, group_id=self.group_id
         )
         self.producer = Kafka_Connector.get_producer()
-        self.dal = Transcriber()
+        self.transcriber = Transcriber()
         # Index name from config to check for existing transcriptions
         self.index_name = config["elasticsearch"]["indexes"]["files_metadata"]
 
-    def run(self):
+    def run(self) -> None:
         logger.info("TranscriptionService started and waiting for messages...")
         while True:
             try:
@@ -31,23 +33,32 @@ class TranscriptionService:
                 )
                 if not records:
                     continue
+
                 for msgs in records.values():
                     for msg in msgs:
-                        doc = msg.value
+                        doc: Dict = msg.value
                         absolute_path = doc.get("absolute_path")
+
                         if not absolute_path:
                             logger.warning("Skipping message without absolute_path")
                             continue
-                        # Check if it's an audio file
+
                         if not self._is_audio_file(absolute_path):
                             logger.debug(f"Skipping non-audio file: {absolute_path}")
                             continue
-                        # Skip already transcribed files
-                        if self.dal.has_transcription(absolute_path, self.index_name):
+
+                        if self.transcriber and self.transcriber.has_transcription(absolute_path, self.output_topic):
                             logger.info(f"Skipping already-transcribed file: {absolute_path}")
                             continue
+
                         try:
-                            transcription = self.dal.transcribe_audio_file(absolute_path)
+                            if self.transcriber:
+                                transcription = self.transcriber.transcribe_audio_file(absolute_path)
+
+                            else:
+                                logger.error("No transcriber available for transcription")
+                                continue
+
                             if transcription:
                                 transcription_doc = {
                                     "absolute_path": absolute_path,
@@ -55,26 +66,20 @@ class TranscriptionService:
                                     "message_type": "transcription",
                                 }
                                 self.producer.send(self.output_topic, transcription_doc)
-                                logger.info(
-                                    f"Transcription completed and sent for: {absolute_path}"
-                                )
+                                logger.info(f"Transcription completed and sent for: {absolute_path}")
                         except Exception as e:
-                            logger.error(
-                                f"Failed to process transcription for {absolute_path}: {e}"
-                            )
+                            logger.error(f"Failed to process transcription for {absolute_path}: {e}")
+
                 self.consumer.commit()
+
             except Exception as e:
-                logger.error(
-                    f"Consumer loop error: {e}. Restarting consumer in 1s..."
-                )
+                logger.error(f"Consumer loop error: {e}. Restarting consumer in 1s...")
                 try:
                     self.consumer.close()
                 except Exception:
                     pass
                 time.sleep(1)
-                self.consumer = Kafka_Connector.get_consumer(
-                    self.input_topic, self.group_id
-                )
+                self.consumer = Kafka_Connector.get_consumer(self.input_topic, self.group_id)
                 continue
 
     def _is_audio_file(self, file_path: str) -> bool:

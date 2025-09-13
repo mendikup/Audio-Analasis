@@ -22,20 +22,34 @@ class Transcriber:
             logger.error(f"Failed to initialize Whisper model: {e}")
             raise
 
-
     def has_transcription(self, absolute_path: str, index_name: str) -> bool:
         """
-        Check if the document already has a transcription
+        Check if the document already has a meaningful transcription
         before we're starting to transcribe
         """
         try:
             doc = self.dal.get_by_id(index_name, absolute_path)
-            return bool(doc.get("content") and doc["content"].strip())
+            content = doc.get("content", "")
+
+            # בדיקה חזקה יותר - התוכן חייב להיות קיים ולא ריק ולא רק רווחים
+            if not content or not content.strip():
+                logger.debug(f"No meaningful content found for {absolute_path}")
+                return False
+
+            # בדיקה נוספת - אם יש פחות מ-5 תווים, כנראה שזה לא תמלול אמיתי
+            if len(content.strip()) < 5:
+                logger.debug(f"Content too short for {absolute_path}: '{content.strip()}'")
+                return False
+
+            logger.debug(f"Found existing transcription for {absolute_path} (length: {len(content.strip())})")
+            return True
+
         except NotFoundError:
+            logger.debug(f"Document not found in ES: {absolute_path}")
             return False
         except Exception as e:
             logger.error(f"Failed to check transcription for {absolute_path}: {e}")
-            # return false to retry transcription fot this audio-file
+            # return false to retry transcription for this audio-file
             return False
 
     def transcribe_audio_file(self, file_path: str) -> str:
@@ -59,11 +73,15 @@ class Transcriber:
             # Combine all segments into one text
             transcription = " ".join([segment.text.strip() for segment in segments])
 
-            logger.info(f"Transcription completed. Language: {info.language}, Duration: {info.duration:.2f}s")
+            # וודא שהתמלול לא ריק לאחר העיבוד
+            if not transcription or not transcription.strip():
+                logger.warning(f"Empty transcription result for: {file_path}")
+                return None
+
+            logger.info(
+                f"Transcription completed. Language: {info.language}, Duration: {info.duration:.2f}s, Length: {len(transcription.strip())} chars")
             return transcription.strip()
 
         except Exception as e:
             logger.error(f"Error transcribing audio file {file_path}: {e}")
             return None
-
-
