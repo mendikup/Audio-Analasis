@@ -23,6 +23,10 @@ class TranscriptionService:
         self.transcriber = Transcriber()
         # Index name from config to check for existing transcriptions
         self.index_name = config["elasticsearch"]["indexes"]["files_metadata"]
+        # Whether to skip files that already have a transcription
+        self.skip_existing_transcriptions = config.get(
+            "skip_existing_transcriptions", True
+        )
 
     def run(self) -> None:
         logger.info("TranscriptionService started and waiting for messages...")
@@ -48,7 +52,8 @@ class TranscriptionService:
                             continue
 
                         if (
-                            self.transcriber
+                            self.skip_existing_transcriptions
+                            and self.transcriber
                             and self.transcriber.has_transcription(
                                 absolute_path, self.index_name
                             )
