@@ -19,6 +19,9 @@ class MongoWriter:
         # Use Mongo DAL for all DB interactions
         self.dal = Mongo_Dal()
 
+        # Whether to overwrite existing files in GridFS
+        self.replace_files = config["files"].get("replace", True)
+
 
     def run(self):
         logger.info("MongoWriter started: waiting for Kafka messages...")
@@ -38,8 +41,8 @@ class MongoWriter:
                         file_id = abs_path
                         filename = doc.get("name")
 
-                        # Store file without overwriting existing content
-                        self.dal.store_file(file_id, abs_path, filename, replace=False)  # avoid duplicate uploads
+                        # Store file honoring configured replace policy
+                        self.dal.store_file(file_id, abs_path, filename, replace=self.replace_files)
                         # Commit after each file so the same message isn't reprocessed
                         self.consumer.commit()  # manual commit per message
 

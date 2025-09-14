@@ -23,6 +23,7 @@ kafka:
 
 files:
   path: "C:\\podcasts"
+  replace: true
 
 hostility_detection:
   danger_threshold: 12.0
