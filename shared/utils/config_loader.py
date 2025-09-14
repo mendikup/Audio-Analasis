@@ -44,9 +44,18 @@ def load_config():
             config["kafka"]["topics"] = {}
         config["kafka"]["topics"]["raw_metadata"] = kafka_topic_raw
 
-    # Files path overrides
+    # Files overrides
     files_path = os.getenv("FILES_PATH")
     if files_path:
         config["files"]["path"] = files_path
+
+    files_replace = os.getenv("FILES_REPLACE")
+    if files_replace is not None:
+        config["files"]["replace"] = files_replace.lower() in (
+            "1",
+            "true",
+            "yes",
+            "on",
+        )
 
     return config
