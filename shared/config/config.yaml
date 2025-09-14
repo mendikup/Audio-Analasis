@@ -26,3 +26,6 @@ files:
 
 hostility_detection:
   danger_threshold: 12.0
+
+# Transcription service options
+skip_existing_transcriptions: true
