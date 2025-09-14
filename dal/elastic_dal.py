@@ -27,8 +27,12 @@ class Elastic_DAL:
                 logger.info(f"Document CREATED in {index_name}: {doc_id}")
             elif result == "updated":
                 logger.info(f"Document UPDATED in {index_name}: {doc_id}")
+            elif result == "noop":
+                logger.info(f"Document NOOP (unchanged) in {index_name}: {doc_id}")
             else:
-                logger.warning(f"Unexpected result for {doc_id} in {index_name}: {result}")
+                logger.warning(
+                    f"Unexpected result for {doc_id} in {index_name}: {result}"
+                )
 
         except Exception as e:
             logger.error(f"Failed to index/update doc {doc_id}: {e}")
