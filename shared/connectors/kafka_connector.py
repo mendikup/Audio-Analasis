@@ -28,6 +28,7 @@ class Kafka_Connector:
             config = load_config()
             servers = config["kafka"]["bootstrap_servers"]
             timeout_ms = config["kafka"].get("consumer_timeout_ms", 1000)
+            offset_reset = config["kafka"].get("auto_offset_reset", "latest")
             logger.info(f"Creating Kafka consumer for topic: {topic}")
             return KafkaConsumer(
                 topic,
@@ -35,8 +36,8 @@ class Kafka_Connector:
                 group_id=group_id,
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
                 enable_auto_commit=False,
-                auto_offset_reset="earliest",
-                consumer_timeout_ms=timeout_ms
+                auto_offset_reset=offset_reset,
+                consumer_timeout_ms=timeout_ms,
             )
         except Exception as e:
             logger.error(f"Error creating Kafka consumer: {e}")

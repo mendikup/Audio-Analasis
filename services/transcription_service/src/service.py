@@ -47,8 +47,15 @@ class TranscriptionService:
                             logger.debug(f"Skipping non-audio file: {absolute_path}")
                             continue
 
-                        if self.transcriber and self.transcriber.has_transcription(absolute_path, self.output_topic):
-                            logger.info(f"Skipping already-transcribed file: {absolute_path}")
+                        if (
+                            self.transcriber
+                            and self.transcriber.has_transcription(
+                                absolute_path, self.index_name
+                            )
+                        ):
+                            logger.info(
+                                f"Skipping already-transcribed file: {absolute_path}"
+                            )
                             continue
 
                         try:
