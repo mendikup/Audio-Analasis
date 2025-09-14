@@ -43,8 +43,9 @@ class MongoWriter:
 
                         # Store file honoring configured replace policy
                         self.dal.store_file(file_id, abs_path, filename, replace=self.replace_files)
-                        # Commit after each file so the same message isn't reprocessed
-                        self.consumer.commit()  # manual commit per message
+
+                # Commit once per batch
+                self.consumer.commit()
 
             except Exception as e:
                 logger.error(f"Consumer loop error: {e} Restarting consumer in 1s...")
